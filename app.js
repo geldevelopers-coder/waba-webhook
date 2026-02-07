@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 const port = process.env.PORT || 3001;
 
-const verifyToken = process.env.VERIFY_TOKEN;
+const verifyToken = 'Gel*123*';
 
 // Route for GET requests
 app.get('/', (req, res) => {
