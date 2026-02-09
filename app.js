@@ -18,13 +18,50 @@ app.get('/', (req, res) => {
   }
 });
 
-// Route for POST requests
-app.post('/', (req, res) => {
+// Route for POST requests with path parameter
+app.post('/:id', async (req, res) => {
+  const { id } = req.params;
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  console.log(`\n\nWebhook received ${timestamp}\n`);
+  console.log(`\n\nWebhook received for ID: ${id} at ${timestamp}\n`);
   console.log(JSON.stringify(req.body, null, 2));
+
+  // Example: Call an external API with the received data and ID
+  try {
+    await callExternalApi(id, req.body);
+  } catch (error) {
+    console.error('Error calling external API:', error.message);
+  }
+
   res.status(200).end();
 });
+
+/**
+ * Example function to call an external API
+ * @param {string} id The path parameter ID
+ * @param {Object} data The data to send to the API
+ */
+async function callExternalApi(id, data) {
+  // You can use the ID to customize the URL if needed
+  const externalApiUrl = `https://dev-api-chatbot.grupo-lafuente.com/api/webhooks/whatsapp/${id}`;
+
+  console.log(`Calling external API: ${externalApiUrl}...`);
+
+  const response = await fetch(externalApiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // 'Authorization': 'Bearer YOUR_TOKEN' // Add auth if needed
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    throw new Error(`External API responded with status ${response.status}`);
+  }
+
+  const result = await response.json();
+  console.log('External API Response:', result);
+}
 
 // Start the server
 app.listen(port, () => {
